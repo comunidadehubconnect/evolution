@@ -1,0 +1,199 @@
+{
+  "name": "EvolutionAutomatic",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO \"contacts\" (\"name\", \"phone_number\", \"account_id\", \"created_at\", \"updated_at\", \"last_activity_at\") VALUES ('CWMKT', '+123456', {{ $json.account }}, NOW(), NOW(), NOW());",
+        "additionalFields": {}
+      },
+      "id": "354b3deb-5305-408c-832f-cf9b936464ff",
+      "name": "Cria o Contato",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        360
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      },
+      "notes": "Sucesso"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO \"automation_rules\" (\"account_id\", \"name\", \"description\", \"event_name\", \"conditions\", \"actions\", \"created_at\", \"updated_at\", \"active\") VALUES ({{ $json.account }}, 'CWMKT', 'CWMKT', 'message_created', \n\n'[{\"values\": [\"+123456\"], \"attribute_key\": \"phone_number\", \"query_operator\": \"and\", \"filter_operator\": \"equal_to\", \"custom_attribute_type\": \"\"}, {\"values\": [\"outgoing\"], \"attribute_key\": \"message_type\", \"query_operator\": \"and\", \"filter_operator\": \"equal_to\", \"custom_attribute_type\": \"\"}, {\"values\": [\"/start\"], \"attribute_key\": \"content\", \"filter_operator\": \"contains\", \"custom_attribute_type\": \"\"}]'\n\n, '[{\"action_name\": \"send_webhook_event\", \"action_params\": [\"{{ $('Colocar Dados').item.json[\"URL N8N\"] }}/webhook/CWMKT\"]}]', NOW(), NOW(), 'true');",
+        "additionalFields": {}
+      },
+      "id": "7b36d2cc-b778-48b3-9512-47787185e5a3",
+      "name": "Cria Automação",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        160
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      },
+      "notes": "Sucesso"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT \"accounts\".\"id\" AS \"account\" FROM \"accounts\" LEFT JOIN \"automation_rules\" ON \"accounts\".\"id\" = \"automation_rules\".\"account_id\" AND \"automation_rules\".\"name\" = 'CWMKT' WHERE \"automation_rules\".\"name\" IS NULL;",
+        "additionalFields": {}
+      },
+      "id": "8646c4d2-4eb4-4ae9-8446-ec5173520782",
+      "name": "Missing Automations",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        840,
+        160
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      },
+      "notes": "Sucesso"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT \"accounts\".\"id\" AS \"account\" FROM \"accounts\" LEFT JOIN \"contacts\" ON \"accounts\".\"id\" = \"contacts\".\"account_id\" AND \"contacts\".\"phone_number\" = '+123456' WHERE \"contacts\".\"phone_number\" IS NULL;",
+        "additionalFields": {}
+      },
+      "id": "f5a28c8b-b5f9-49c4-9e89-8675ba9304ab",
+      "name": "Missing Quepasa Contact",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        840,
+        360
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      },
+      "notes": "Sucesso"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "URL N8N",
+              "value": "http://127.0.0.1:5678"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "93189847-d5dc-4215-9094-2ebfe142fed8",
+      "name": "Colocar Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        540,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "c826ffd3-372c-4c87-83bf-90f0dba6d3a5",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        260
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Missing Automations": {
+      "main": [
+        [
+          {
+            "node": "Cria Automação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Missing Quepasa Contact": {
+      "main": [
+        [
+          {
+            "node": "Cria o Contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Colocar Dados": {
+      "main": [
+        [
+          {
+            "node": "Missing Automations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Missing Quepasa Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Colocar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "9d27f3a9-4922-4e7c-b185-dadf2f9e4942",
+  "id": "6lxEcYIfoIzKLbX2",
+  "meta": {
+    "instanceId": "02e576fc5f768a593bc95fe6d13463b5f6b8af128ccbe57b1a8bdaa9951a3fd9"
+  },
+  "tags": []
+}

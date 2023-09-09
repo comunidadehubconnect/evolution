@@ -1,0 +1,552 @@
+{
+  "name": "EvolutionQrcode",
+  "nodes": [
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "URL FORMADA",
+              "value": "=http://127.0.0.1:8080/chatwoot/webhook/{{ $('Informa Identifier').item.json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b4c0692d-a4c8-4384-b0e9-acbc5169af31",
+      "name": "Formação da URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        960
+      ],
+      "retryOnFail": false,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "URL N8N",
+              "value": "http://127.0.0.1:5678"
+            },
+            {
+              "name": "URL DO EVOLUTION",
+              "value": "http://127.0.0.1:8080"
+            },
+            {
+              "name": "API KEY EVOLUTION GLOBAL",
+              "value": "=B6D711FCDE4D4FD5936544120E713976"
+            },
+            {
+              "name": "URL CHATWOOT",
+              "value": "http://127.0.0.1:3000"
+            },
+            {
+              "name": "ACCOUNT ID",
+              "value": "={{ $json.body.messages[0].account_id }}"
+            },
+            {
+              "name": "NUMERO DO INBOX",
+              "value": "={{ $json.body.contact_inbox.inbox_id }}"
+            },
+            {
+              "name": "ID DA CONTA",
+              "value": "={{ $json.body.messages[0].account_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ba04a147-67b6-4d3f-8dc0-a2f721045725",
+      "name": "Colocando Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        60,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "CWMKT",
+        "options": {}
+      },
+      "id": "fa6aea5a-dffa-443d-b652-e031c352d6e5",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        1120
+      ],
+      "webhookId": "e8d38d79-8f79-4bd1-85f8-fce3d8200233"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Informa Identifier",
+              "value": "={{ $json['Informa Identifier'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "72746310-f41f-4f88-ae34-47007ff035b4",
+      "name": "TokenGenerate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT \"access_tokens\".\"token\" AS \"utoken\" FROM \"account_users\" INNER JOIN \"access_tokens\" ON \"access_tokens\".\"owner_id\" = \"account_users\".\"user_id\" WHERE \"account_users\".\"account_id\" = {{ $node[\"Colocando Dados\"].json[\"ID DA CONTA\"] }} AND \"access_tokens\".\"owner_type\" = 'User' AND \"account_users\".\"role\" = 1 ORDER BY \"account_users\".\"id\" LIMIT 1;",
+        "additionalFields": {}
+      },
+      "id": "a63e8f29-903e-401d-bb06-a11deae593d6",
+      "name": "Informa UToken",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        260,
+        1120
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8080/instance/fetchInstances",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "B6D711FCDE4D4FD5936544120E713976"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "861c96a0-dc64-4a17-8959-8ed43632d06f",
+      "name": "Lista Instacia",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        700,
+        1120
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.Name }}",
+              "value2": "={{ $('Informa Identifier').item.json.name }}"
+            }
+          ]
+        }
+      },
+      "id": "fa77bfae-5de1-4b6c-bef9-54a3d934dfe0",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Name",
+              "value": "={{ $json.instance.instanceName }}"
+            },
+            {
+              "name": "Informa Identifier",
+              "value": "={{ $('Informa Identifier').item.json.identifier }}"
+            },
+            {
+              "name": "channel_id",
+              "value": "={{ $('Informa Identifier').item.json.channel_id }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "id": "4d987446-4650-4a0a-bac0-d0508e379a76",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        900,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT \"public\".\"channel_api\".\"identifier\", \"public\".\"inboxes\".\"channel_id\", \"public\".\"inboxes\".\"name\" FROM \"public\".\"channel_api\" INNER JOIN \"public\".\"inboxes\" ON \"public\".\"channel_api\".\"id\" = \"public\".\"inboxes\".\"channel_id\" WHERE \"public\".\"channel_api\".\"account_id\"='{{ $node[\"Colocando Dados\"].json[\"ID DA CONTA\"] }}' AND \"public\".\"inboxes\".\"id\" = '{{ $node[\"Colocando Dados\"].json[\"NUMERO DO INBOX\"] }}';",
+        "additionalFields": {}
+      },
+      "id": "e7ba1d40-22e2-4c0c-ac1c-0a209265d2ce",
+      "name": "Informa Identifier",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        480,
+        1120
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cwmkt.com.br/instance/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "B6D711FCDE4D4FD5936544120E713976"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "instanceName",
+              "value": "={{ $('Informa Identifier').item.json.name }}"
+            },
+            {
+              "name": "token",
+              "value": "={{ $('Informa Identifier').item.json.identifier }}"
+            },
+            {
+              "name": "qrcode",
+              "value": true
+            },
+            {
+              "name": "chatwoot_account_id",
+              "value": "={{ $('Colocando Dados').item.json['ID DA CONTA'] }}"
+            },
+            {
+              "name": "chatwoot_token",
+              "value": "={{ $('Informa UToken').item.json.utoken }}"
+            },
+            {
+              "name": "chatwoot_url",
+              "value": "https://chat.cwmkt.com.br"
+            },
+            {
+              "name": "chatwoot_sign_msg",
+              "value": true
+            },
+            {
+              "name": "chatwoot_reopen_conversation",
+              "value": "true"
+            },
+            {
+              "name": "chatwoot_conversation_pending"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "00b81a1e-faf2-4538-89dd-b2702c4538a5",
+      "name": "Cria o QrCode",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2140,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "channel_api",
+          "mode": "list",
+          "cachedResultName": "channel_api"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "hmac_mandatory": false,
+            "identifier": "={{ $json['Informa Identifier'] }}",
+            "webhook_url": "={{ $json['URL FORMADA'] }}",
+            "account_id": "={{ $('Colocando Dados').item.json['ACCOUNT ID'] }}"
+          },
+          "matchingColumns": [
+            "identifier"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "webhook_url",
+              "displayName": "webhook_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "identifier",
+              "displayName": "identifier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hmac_token",
+              "displayName": "hmac_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hmac_mandatory",
+              "displayName": "hmac_mandatory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "additional_attributes",
+              "displayName": "additional_attributes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "530866df-3510-4c1f-bb16-5de191ad89a5",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.2,
+      "position": [
+        1900,
+        960
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "vEUF82uZQ0566HvF",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Formação da URL": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Colocando Dados": {
+      "main": [
+        [
+          {
+            "node": "Informa UToken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Colocando Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Informa UToken": {
+      "main": [
+        [
+          {
+            "node": "Informa Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TokenGenerate": {
+      "main": [
+        [
+          {
+            "node": "Formação da URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lista Instacia": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [],
+        [
+          {
+            "node": "TokenGenerate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Informa Identifier": {
+      "main": [
+        [
+          {
+            "node": "Lista Instacia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Cria o QrCode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "e7856b03-cabc-49ae-acd9-a67a59e933be",
+  "id": "WWGLicqjIvbhkGlp",
+  "meta": {
+    "instanceId": "02e576fc5f768a593bc95fe6d13463b5f6b8af128ccbe57b1a8bdaa9951a3fd9"
+  },
+  "tags": []
+}
