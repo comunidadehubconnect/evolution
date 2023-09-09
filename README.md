@@ -86,3 +86,93 @@ update installation_configs set locked = false;
 
 </details>
 
+<details>
+<summary>Manual de Instalação Evolution</summary>
+
+```bash
+sudo apt-get update
+```
+
+```bash
+sudo apt-get install -y ca-certificates curl gnupg
+```
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+```
+
+```bash
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+```
+
+Criar repositório deb
+
+```bash
+NODE_MAJOR=16
+```
+
+```bash
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+```
+
+```bash
+sudo apt-get update
+```
+
+```bash
+sudo apt-get install nodejs -y
+```
+
+```bash
+npm install -g npm@latest
+```
+
+```bash
+npm install -g pm2@latest
+```
+
+```bash
+apt-get install -y git zip unzip nload snapd curl wget sudo
+```
+
+```bash
+apt update && apt -y upgrade
+```
+
+```bash
+git clone https://github.com/EvolutionAPI/evolution-api.git
+```
+
+```bash
+cd evolution-api
+```
+
+```bash
+npm install
+```
+
+```bash
+cp src/dev-env.yml src/env.yml
+```
+
+```bash
+nano src/env.yml
+```
+
+```bash
+npm run build
+```
+
+```bash
+pm2 start 'npm run start:prod' --name ApiEvolution
+```
+
+```bash
+pm2 startup
+```
+
+```bash
+pm2 save --force
+```
+
+<details>
