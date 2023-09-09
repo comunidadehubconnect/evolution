@@ -332,5 +332,28 @@ sudo pm2 startup ubuntu -u root && sudo pm2 startup ubuntu -u root --hp /root &&
 
 </details>
 
+### Instalações finalizadas ✅
 
+Suba e Configue os Worflows no N8N
+
+### Criando sua Caixa de Entrada
+
+Envia uma mensagem para Contato Criado
+
+```bash
+Quepasa Control
+```
+Digitando o comando abaixo
+
+```bash
+/qrcode
+```
+
+Leia QRCODE
+
+### Ajustar Fuso Horário do servidor
+
+```bash
+dpkg-reconfigure tzdata
+```
 
