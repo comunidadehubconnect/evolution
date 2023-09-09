@@ -340,13 +340,12 @@ Suba e Configue os Worflows no N8N
 
 Envia uma mensagem para Contato Criado
 
-```bash
-Quepasa Control
-```
+BOT
+
 Digitando o comando abaixo
 
 ```bash
-/qrcode
+/iniciar
 ```
 
 Leia QRCODE
