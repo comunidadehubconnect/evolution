@@ -199,7 +199,7 @@ server {
 
   location / {
 
-   proxy_pass http://127.0.0.1:5678;
+   proxy_pass http://127.0.0.1:8080;
    proxy_pass_header Authorization;
    proxy_set_header Upgrade $http_upgrade;
    proxy_set_header Connection "upgrade";
